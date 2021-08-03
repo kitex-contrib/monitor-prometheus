@@ -129,3 +129,37 @@ func main() {
 ...
 }
 ```
+## 可视化界面
+### 安装Prometheus
+1. 参考[官网](https://prometheus.io/docs/introduction/first_steps/), 下载并安装prometheus server
+2. 编辑prometheus.yml，修改scrape_configs项
+```
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+# - "first_rules.yml"
+# - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+- job_name: 'kitexclient'
+  scrape_interval: 1s
+  metrics_path: /kitexclient
+  static_configs:
+  - targets: ['localhost:9091'] # scrape data endpoint
+- job_name: 'kitexserver'
+  scrape_interval: 1s
+  metrics_path: /kitexserver
+  static_configs:
+  - targets: ['localhost:9092'] # scrape data endpoint
+```
+3. 启动prometheus
+   prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
+
+4. 浏览器访问 http://localhost:9090/targets ，可以看到刚才配置的抓取节点
+
+### 安装Grafana
+1. 参考官网，下载并安装grafana
+2. 浏览器访问 http://localhost:3000，账号密码默认是admin
+3. 配置数据源 `Configuration` ->`Data Source` -> `Add data source`，配置后点击 `Save & Test` 测试验证是否生效
+4. 添加所需的监控界面 `Create` -> `dashboard`。
