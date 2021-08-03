@@ -130,9 +130,9 @@ func main() {
 }
 ```
 ## 可视化界面
-### 安装Prometheus
-1. 参考[官网](https://prometheus.io/docs/introduction/first_steps/), 下载并安装prometheus server
-2. 编辑prometheus.yml，修改scrape_configs项
+### 安装 Prometheus
+1. 参考[官网](https://prometheus.io/docs/introduction/first_steps/), 下载并安装 prometheus server
+2. 编辑 prometheus.yml，修改 scrape_configs 项
 ```
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -159,7 +159,7 @@ scrape_configs:
 4. 浏览器访问 http://localhost:9090/targets ，可以看到刚才配置的抓取节点
 
 ### 安装Grafana
-1. 参考官网，下载并安装grafana
-2. 浏览器访问 http://localhost:3000，账号密码默认是admin
+1. 参考官网，下载并安装 grafana
+2. 浏览器访问 http://localhost:3000, 账号密码默认是 admin
 3. 配置数据源 `Configuration` ->`Data Source` -> `Add data source`，配置后点击 `Save & Test` 测试验证是否生效
 4. 添加所需的监控界面 `Create` -> `dashboard`。
