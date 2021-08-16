@@ -122,7 +122,7 @@ func NewClientTracer(addr, path string) stats.Tracer {
 		prom.HistogramOpts{
 			Name:    "kitex_client_latency_us",
 			Help:    "Latency (microseconds) of the RPC until it is finished.",
-			Buckets: prom.DefBuckets,
+			Buckets: []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000},
 		},
 		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
 	)
@@ -186,7 +186,7 @@ func NewServerTracer(addr, path string) stats.Tracer {
 		prom.HistogramOpts{
 			Name:    "kitex_server_latency_us",
 			Help:    "Latency (microseconds) of RPC that had been application-level handled by the server.",
-			Buckets: prom.DefBuckets,
+			Buckets: []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000},
 		},
 		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
 	)
