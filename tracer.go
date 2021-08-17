@@ -135,6 +135,7 @@ func NewClientTracer(addr, path string) stats.Tracer {
 }
 
 type serverTracer struct {
+	serverHandledCounter   *prom.CounterVec
 	serverHandledHistogram *prom.HistogramVec
 }
 
@@ -160,6 +161,7 @@ func (c *serverTracer) Finish(ctx context.Context) {
 		extraLabels[labelKeyStatus] = statusError
 	}
 
+	_ = counterAdd(c.serverHandledCounter, 1, genLabels(ri))
 	_ = histogramObserve(c.serverHandledHistogram, cost, genLabels(ri))
 }
 
@@ -193,6 +195,7 @@ func NewServerTracer(addr, path string) stats.Tracer {
 	registry.MustRegister(serverHandledHistogram)
 
 	return &serverTracer{
+		serverHandledCounter:   serverHandledCounter,
 		serverHandledHistogram: serverHandledHistogram,
 	}
 }
