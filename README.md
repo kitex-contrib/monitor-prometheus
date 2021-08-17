@@ -62,7 +62,7 @@ prometheus大概的工作流程：
     - Tags: type, caller, callee, method, status
 
 ## Useful Examples
-Prometheus的查询语法可以参考 [Querying basics | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/basics/), 这里给出一些常用示例：
+Prometheus 的查询语法可以参考 [Querying basics | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/basics/), 这里给出一些常用示例：
 
 **client throughput of succeed requests**
 ```
@@ -153,13 +153,16 @@ scrape_configs:
   static_configs:
   - targets: ['localhost:9092'] # scrape data endpoint
 ```
-3. 启动prometheus
-   prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
+3. 启动 prometheus
+```
+prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
+```
+   
 
-4. 浏览器访问 http://localhost:9090/targets ，可以看到刚才配置的抓取节点
+4. 浏览器访问 `http://localhost:9090/targets`, 可以看到刚才配置的抓取节点
 
 ### 安装Grafana
-1. 参考官网，下载并安装 grafana
-2. 浏览器访问 http://localhost:3000, 账号密码默认是 admin
+1. 参考[官网](https://grafana.com/grafana/download) ，下载并安装 grafana
+2. 浏览器访问 `http://localhost:3000`, 账号密码默认都是 `admin`
 3. 配置数据源 `Configuration` ->`Data Source` -> `Add data source`，配置后点击 `Save & Test` 测试验证是否生效
-4. 添加所需的监控界面 `Create` -> `dashboard`。
+4. 添加监控界面 `Create` -> `dashboard`，根据自己的需求添加 throughput 和 pct99 等监控指标，可以参考上面 `Useful Examples` 给出的样例。
