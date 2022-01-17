@@ -1,4 +1,4 @@
-# Prometheus monitoring for Kitex
+# Prometheus monitoring for Kitex.
 
 ## Abstract
 prometheus大概的工作流程：
