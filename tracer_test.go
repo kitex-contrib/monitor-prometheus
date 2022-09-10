@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudwego/kitex/pkg/klog"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +34,7 @@ func TestPrometheusReporter(t *testing.T) {
 	http.Handle("/prometheus", promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
 	go func() {
 		if err := http.ListenAndServe(":9090", nil); err != nil {
-			t.Fatal("Unable to start a promhttp server, err: " + err.Error())
+			klog.Fatal("Unable to start a promhttp server, err: " + err.Error())
 		}
 	}()
 
@@ -63,6 +64,8 @@ func TestPrometheusReporter(t *testing.T) {
 
 	assert.True(t, counterAdd(counter, 6, labels) == nil)
 	assert.True(t, histogramObserve(histogram, time.Second, labels) == nil)
+
+	time.Sleep(time.Second) // wait server start
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {
