@@ -97,7 +97,7 @@ sum(rate(kitex_server_throughput{status="error"}[1m])) by (status,callee,method)
 
 ### Client
 
-```
+```go
 import (
     "github.com/kitex-contrib/monitor-prometheus"
     kClient "github.com/cloudwego/kitex/client"
@@ -114,7 +114,7 @@ import (
 
 ### Server
 
-```
+```go
 import (
     "github.com/kitex-contrib/monitor-prometheus"
     kServer "github.com/cloudwego/kitex/server"
@@ -129,11 +129,12 @@ func main() {
 ...
 }
 ```
+
 ## 可视化界面
 ### 安装 Prometheus
 1. 参考[官网](https://prometheus.io/docs/introduction/first_steps/), 下载并安装 prometheus server
 2. 编辑 prometheus.yml，修改 scrape_configs 项
-```
+```yaml
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
 # - "first_rules.yml"
@@ -154,10 +155,9 @@ scrape_configs:
   - targets: ['localhost:9092'] # scrape data endpoint
 ```
 3. 启动 prometheus
-```
+```console
 prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
 ```
-   
 
 4. 浏览器访问 `http://localhost:9090/targets`, 可以看到刚才配置的抓取节点
 
