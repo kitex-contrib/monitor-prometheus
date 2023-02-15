@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions a nd
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -33,7 +33,8 @@ func TestPrometheusReporter(t *testing.T) {
 	http.Handle("/prometheus", promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
 	go func() {
 		if err := http.ListenAndServe(":9090", nil); err != nil {
-			t.Fatal("Unable to start a promhttp server, err: " + err.Error())
+			t.Error("Unable to start a promhttp server, err: " + err.Error())
+			return
 		}
 	}()
 
