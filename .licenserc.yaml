@@ -17,7 +17,7 @@ header:
   license:
     spdx-id: Apache-2.0
     copyright-owner: CloudWeGo Authors
-    copyright-year: "2021-2023"
+    copyright-year: 2021
   paths:
     - "**/*.go"
 
