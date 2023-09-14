@@ -107,9 +107,12 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 		opt.apply(cfg)
 	}
 
-	http.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
+	cfg.serveMux.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
+		ErrorHandling: promhttp.ContinueOnError,
+		Registry:      cfg.registry,
+	}))
 	go func() {
-		if err := http.ListenAndServe(addr, nil); err != nil {
+		if err := http.ListenAndServe(addr, cfg.serveMux); err != nil {
 			log.Fatal("Unable to start a promhttp server, err: " + err.Error())
 		}
 	}()
@@ -181,9 +184,12 @@ func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
 		opt.apply(cfg)
 	}
 
-	http.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
+	cfg.serveMux.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
+		ErrorHandling: promhttp.ContinueOnError,
+		Registry:      cfg.registry,
+	}))
 	go func() {
-		if err := http.ListenAndServe(addr, nil); err != nil {
+		if err := http.ListenAndServe(addr, cfg.serveMux); err != nil {
 			log.Fatal("Unable to start a promhttp server, err: " + err.Error())
 		}
 	}()
