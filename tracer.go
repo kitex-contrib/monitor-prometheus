@@ -137,7 +137,7 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 	cfg.registry.MustRegister(clientHandledHistogram)
 
 	if cfg.enableGoCollector {
-		cfg.registry.MustRegister(collectors.NewGoCollector())
+		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
 
 	return &clientTracer{
@@ -214,7 +214,7 @@ func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
 	cfg.registry.MustRegister(serverHandledHistogram)
 
 	if cfg.enableGoCollector {
-		cfg.registry.MustRegister(collectors.NewGoCollector())
+		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
 
 	return &serverTracer{
