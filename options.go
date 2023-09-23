@@ -26,6 +26,7 @@ type config struct {
 	runtimeMetricRules []collectors.GoRuntimeMetricsRule
 	registry           *prom.Registry
 	serveMux           *http.ServeMux
+	disableServer      bool
 }
 
 func defaultConfig() *config {
@@ -35,6 +36,7 @@ func defaultConfig() *config {
 		runtimeMetricRules: []collectors.GoRuntimeMetricsRule{},
 		registry:           prom.NewRegistry(),
 		serveMux:           http.DefaultServeMux,
+		disableServer:      false,
 	}
 }
 
@@ -76,5 +78,12 @@ func WithServeMux(serveMux *http.ServeMux) Option {
 		if serveMux != nil {
 			cfg.serveMux = serveMux
 		}
+	})
+}
+
+// WithDisableServer disable prometheus server
+func WithDisableServer(disable bool) Option {
+	return option(func(cfg *config) {
+		cfg.disableServer = disable
 	})
 }
