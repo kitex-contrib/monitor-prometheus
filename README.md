@@ -1,94 +1,94 @@
 # Prometheus monitoring for Kitex
 
 ## Abstract
-prometheus大概的工作流程：
-1. Prometheus server 定期从配置好的 jobs 或者 exporters 中拉（pull模式） metrics，或者接收来自 Pushgateway 发过来（push模式）的 metrics，或者从其他的 Prometheus server 中拉 metrics；
-2. Prometheus server 在本地存储收集到的 metrics，并运行已定义好的 alert.rules，记录新的时间序列或者向 Alertmanager 推送警报；
-3. Alertmanager 根据配置文件，对接收到的警报进行处理，发出告警；
-4. 在图形界面中，可视化采集数据，例如对接Grafana。
+The approximate workflow of Prometheus:
+1. The Prometheus server periodically pulls metrics from configured jobs or exporters (pull mode), or receives metrics pushed from Pushgateway (push mode), or fetches metrics from other Prometheus servers.
+2. The Prometheus server locally stores the collected metrics, runs defined `alert.rules`, records new time series, or sends alerts to Alertmanager.
+3. Alertmanager processes received alerts according to the configuration file and issues alarms.
+4. In the graphical interface, visualizes collected data, for example, integrating with Grafana.
 
-### 数据模型
-   Prometheus 中存储的数据为时间序列，是由 metric 的名字和一系列的标签（键值对）唯一标识的，不同的标签则代表不同的时间序列。
-- name：一般用于表示 metric 的功能；注意，metric 名字由 ASCII 字符，数字，下划线，以及冒号组成，必须满足正则表达式 [a-zA-Z_:][a-zA-Z0-9_:]*；
-- tag：标识了特征维度，便于过滤和聚合。例如 PSM 和 method 等信息。tag 中的 key 由 ASCII 字符，数字，以及下划线组成，必须满足正则表达式 [a-zA-Z_:][a-zA-Z0-9_:]*；
-- sample：实际的时间序列，每个序列包括一个 float64 的值和一个毫秒级的时间戳；
-- metric：通过如下格式表示：<metric name>{<label name>=<label value>, ...}
+### Data Model
+The data stored in Prometheus consists of time series, uniquely identified by a metric's name and a series of labels (key-value pairs), where different labels represent different time series.
+- **name:** Typically represents the functionality of the metric; note that metric names consist of ASCII characters, digits, underscores, and colons and must adhere to the regular expression `[a-zA-Z_:][a-zA-Z0-9_:]*`.
+- **tag:** Identifies feature dimensions for filtering and aggregation. For example, PSM and method information. Tag keys consist of ASCII characters, digits, and underscores and must adhere to the regular expression `[a-zA-Z_:][a-zA-Z0-9_:]*`.
+- **sample:** Actual time series comprising a float64 value and a timestamp in milliseconds.
+- **metric:** Represented in the following format: `<metric name>{<label name>=<label value>, ...}`
 
-### Metric类型
+### Metric Types
 
 #### Counter
-- 可以理解为只增不减的计数器，典型的应用如：请求的个数，结束的任务数， 出现的错误数等等；
-- 对应 gopkg/metrics 的 EmitStore。
+- Understandable as an increment-only counter, typical applications include counting requests, completed tasks, occurring errors, etc.
+- Corresponds to gopkg/metrics' EmitStore.
 
 #### Gauge
-- 一种常规的 metric，典型的应用如：goroutines 的数量；
-- 可以任意加减；
-- 对应 gopkg/metrics 的 EmitCounter。
+- A standard metric; typical applications include counting goroutines.
+- Can be increased or decreased arbitrarily.
+- Corresponds to gopkg/metrics' EmitCounter.
 
 #### Histogram
-- 生成直方图数据，用于统计和分析样本的分布情况，典型的应用如：pct99，CPU 的平均使用率等；
-- 可以对观察结果采样，分组及统计。
-- 对应 gopkg/metrics 的 EmitTimer。
+- Generates histogram data used for statistical analysis of sample distributions; typical applications include pct99, average CPU usage, etc.
+- Allows sampling, grouping, and statistics on observed results.
+- Corresponds to gopkg/metrics' EmitTimer.
 
 #### Summary
-- 类似于 Histogram，提供观测值的 count 和 sum 功能；
-- 提供百分位的功能，即可以按百分比划分跟踪结果；
-- Sumamry 的分位数是直接在客户端计算完成，因此对于分位数的计算而言，Summary 在通过 PromQL 进行查询时有更好的性能表现，而 Histogram 则会消耗更多的资源，对于客户端而言 Histogram 消耗的资源更少。
+- Similar to Histogram, providing count and sum functions for observed values.
+- Offers percentile functionality, dividing tracked results by percentage.
+- Summary's percentiles are calculated directly on the client-side, resulting in better performance when querying via PromQL. In contrast, Histogram consumes more resources; for clients, Histogram consumes fewer resources.
 
 ## Labels
-- type - 请求类型
-    - pingpong - 单次请求，单次应答
-    - oneway - 单次请求，没有应答
-    - streaming - 多次请求，多次应答
-- caller - 请求方 service name
-- callee - 被请求方 service name
-- method - 请求的 method name
-- status - 一次完整的 rpc 之后，返回的状态
-    - succeed - 请求成功
-    - error - 请求失败
+- **type -** Request type
+  - pingpong - Single request, single response
+  - oneway - Single request, no response
+  - streaming - Multiple requests, multiple responses
+- **caller -** Requesting service name
+- **callee -** Requested service name
+- **method -** Request method name
+- **status -** Status after a complete RPC:
+  - succeed - Request successful
+  - error - Request failed
 
 ## Metrics
-- Client 端处理的请求总数：
-    - Name: kitex_client_throughput
-    - Tags: type, caller, callee, method, status
-- Client 端请求处理耗时（收到应答时间 - 发起请求时间，单位 us）：
-    - Name: kitex_client_latency_us
-    - Tags: type, caller, callee, method, status
-- Server 端处理的请求总数：
-  - Name: kitex_server_throughput
-  - Tags: type, caller, callee, method, status
-- Server 端请求处理耗时（处理完请求时间 - 收到请求时间，单位 us）：
-    - Name: kitex_server_latency_us
-    - Tags: type, caller, callee, method, status
+- **Total number of requests handled by the Client:**
+  - **Name:** kitex_client_throughput
+  - **Tags:** type, caller, callee, method, status
+- **Latency of request handling at the Client (Response received time - Request initiation time, in microseconds):**
+  - **Name:** kitex_client_latency_us
+  - **Tags:** type, caller, callee, method, status
+- **Total number of requests handled by the Server:**
+  - **Name:** kitex_server_throughput
+  - **Tags:** type, caller, callee, method, status
+- **Latency of request handling at the Server (Processing completion time - Request received time, in microseconds):**
+  - **Name:** kitex_server_latency_us
+  - **Tags:** type, caller, callee, method, status
 
 ## Useful Examples
-Prometheus 的查询语法可以参考 [Querying basics | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/basics/), 这里给出一些常用示例：
+For Prometheus query syntax, refer to [Querying basics | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/basics/). Here are some commonly used examples:
 
-**client throughput of succeed requests**
+**Client throughput of succeed requests**
 ```
 sum(rate(kitex_client_throughput{status="succeed"}[1m])) by (callee,method)
 ```
 
-**client latency pct99 of succeed requests**
+**Client latency pct99 of succeed requests**
 ```
 histogram_quantile(0.99,
 sum(rate(kitex_client_latency_us_bucket{status="succeed"}[1m])) by (caller,callee,method,le)
 )
 ```
 
-**server throughput of succeed requests**
+**Server throughput of succeed requests**
 ```
 sum(rate(kitex_server_throughput{status="succeed"}[1m])) by (code,callee,method)
 ```
 
-**server latency pct99 of succeed requests**
+**Server latency pct99 of succeed requests**
 ```
 histogram_quantile(0.99,
 sum(rate(kitex_server_latency_us_bucket{status="succeed"}[5m])) by (caller,callee,method,le)
 )
 ```
 
-**pingpong request error rate**
+**Pingpong request error rate**
 ```
 sum(rate(kitex_server_throughput{status="error"}[1m])) by (status,callee,method)
 ```
@@ -130,10 +130,10 @@ func main() {
 }
 ```
 
-## 可视化界面
-### 安装 Prometheus
-1. 参考[官网](https://prometheus.io/docs/introduction/first_steps/), 下载并安装 prometheus server
-2. 编辑 prometheus.yml，修改 scrape_configs 项
+## Visualization Interface
+### Installing Prometheus
+1. Refer to [Official Documentation](https://prometheus.io/docs/introduction/first_steps/), download and install the Prometheus server.
+2. Edit prometheus.yml, modify the scrape_configs item:
 ```yaml
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -154,15 +154,14 @@ scrape_configs:
   static_configs:
   - targets: ['localhost:9092'] # scrape data endpoint
 ```
-3. 启动 prometheus
+3. Start Prometheus:
 ```console
 prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
 ```
+4. Access `http://localhost:9090/targets` in your browser to view the configured scrape nodes.
 
-4. 浏览器访问 `http://localhost:9090/targets`, 可以看到刚才配置的抓取节点
-
-### 安装Grafana
-1. 参考[官网](https://grafana.com/grafana/download) ，下载并安装 grafana
-2. 浏览器访问 `http://localhost:3000`, 账号密码默认都是 `admin`
-3. 配置数据源 `Configuration` ->`Data Source` -> `Add data source`，配置后点击 `Save & Test` 测试验证是否生效
-4. 添加监控界面 `Create` -> `dashboard`，根据自己的需求添加 throughput 和 pct99 等监控指标，可以参考上面 `Useful Examples` 给出的样例。
+### Installing Grafana
+1. Refer to the [official website](https://grafana.com/grafana/download), download and install Grafana.
+2. Access `http://localhost:3000` in your browser; the default username and password are both `admin`.
+3. Configure the data source by navigating to `Configuration` -> `Data Source` -> `Add data source`. After configuring, click on `Save & Test` to verify if it's functioning properly.
+4. Create monitoring dashboards by going to `Create` -> `Dashboard`. Add metrics like throughput and pct99 based on your requirements. You can refer to the sample configurations provided in the "Useful Examples" section above.
