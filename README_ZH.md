@@ -1,4 +1,5 @@
 # Prometheus monitoring for Kitex
+[English](README.md) | 中文
 
 ## Abstract
 Prometheus 大概的工作流程：
