@@ -51,7 +51,7 @@ func defaultConfig() *config {
 		enableGoCollector:  false,
 		runtimeMetricRules: []collectors.GoRuntimeMetricsRule{},
 		registry:           prom.NewRegistry(),
-		serveMux:           http.DefaultServeMux,
+		serveMux:           http.NewServeMux(),
 		disableServer:      false,
 	}
 }
