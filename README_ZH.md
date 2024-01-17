@@ -19,12 +19,12 @@ Prometheus 中存储的数据为时间序列，是由 metric 的名字和一系�
 
 #### Counter
 - 可以理解为只增不减的计数器，典型的应用如：请求的个数，结束的任务数， 出现的错误数等等；
-- 对应 gopkg/metrics 的 EmitStore。
+- 对应 gopkg/metrics 的 `EmitCounter`。
 
 #### Gauge
 - 一种常规的 metric，典型的应用如：goroutines 的数量；
 - 可以任意加减；
-- 对应 gopkg/metrics 的 EmitCounter。
+- 对应 gopkg/metrics 的 `EmitStore`。
 
 #### Histogram
 - 生成直方图数据，用于统计和分析样本的分布情况，典型的应用如：pct99，CPU 的平均使用率等；
