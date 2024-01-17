@@ -19,12 +19,12 @@ The data stored in Prometheus consists of time series, uniquely identified by a 
 
 #### Counter
 - Understandable as an increment-only counter, typical applications include counting requests, completed tasks, occurring errors, etc.
-- Corresponds to gopkg/metrics' EmitStore.
+- Corresponds to gopkg/metrics' `EmitCounter`.
 
 #### Gauge
 - A standard metric; typical applications include counting goroutines.
 - Can be increased or decreased arbitrarily.
-- Corresponds to gopkg/metrics' EmitCounter.
+- Corresponds to gopkg/metrics' `EmitStore`.
 
 #### Histogram
 - Generates histogram data used for statistical analysis of sample distributions; typical applications include pct99, average CPU usage, etc.
